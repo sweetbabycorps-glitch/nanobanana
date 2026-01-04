@@ -54,7 +54,7 @@ export const useImageGeneration = () => {
             checksum: img.slice(0, 32)
           })) : [],
           outputAssets,
-          modelVersion: 'gemini-2.5-flash-image-preview',
+          modelVersion: 'gemini-3-pro-image-preview',
           timestamp: Date.now()
         };
 

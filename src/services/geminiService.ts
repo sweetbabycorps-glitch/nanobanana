@@ -60,11 +60,11 @@ export class GeminiService {
         }
       };
 
-      const response = await fetch(API_URL, {
+      const response = await fetch(`${API_URL}?key=${API_KEY}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${API_KEY}`,
+          'x-goog-api-key': API_KEY,
         },
         body: JSON.stringify(body),
       });
@@ -87,8 +87,11 @@ export class GeminiService {
 
       return images;
     } catch (error) {
-      console.error('Error generating image:', error);
-      throw new Error('Не удалось сгенерировать изображение. Пожалуйста, попробуйте снова.');
+      console.error('[GeminiService] Error generating image:', error);
+      if (error instanceof TypeError && error.message === 'Failed to fetch') {
+        throw new Error('Ошибка сети или доступа к API (ERR_CONNECTION_CLOSED). Проверьте интернет-соединение или настройки прокси/VPN.');
+      }
+      throw new Error(error instanceof Error ? error.message : 'Не удалось сгенерировать изображение. Пожалуйста, попробуйте снова.');
     }
   }
 
@@ -136,11 +139,11 @@ export class GeminiService {
         }
       };
 
-      const response = await fetch(API_URL, {
+      const response = await fetch(`${API_URL}?key=${API_KEY}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${API_KEY}`,
+          'x-goog-api-key': API_KEY,
         },
         body: JSON.stringify(body),
       });
@@ -163,8 +166,11 @@ export class GeminiService {
 
       return images;
     } catch (error) {
-      console.error('Error editing image:', error);
-      throw new Error('Не удалось отредактировать изображение. Пожалуйста, попробуйте снова.');
+      console.error('[GeminiService] Error editing image:', error);
+      if (error instanceof TypeError && error.message === 'Failed to fetch') {
+        throw new Error('Ошибка сети или доступа к API (ERR_CONNECTION_CLOSED). Проверьте интернет-соединение или настройки прокси/VPN.');
+      }
+      throw new Error(error instanceof Error ? error.message : 'Не удалось отредактировать изображение. Пожалуйста, попробуйте снова.');
     }
   }
 
@@ -199,11 +205,11 @@ Only segment the specific object or region requested. The mask should be a binar
 
       // Note: Segmentation might use a different endpoint or model in a real scenario,
       // but following the pattern of using fetch for consistency.
-      const response = await fetch(API_URL, {
+      const response = await fetch(`${API_URL}?key=${API_KEY}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${API_KEY}`,
+          'x-goog-api-key': API_KEY,
         },
         body: JSON.stringify(body),
       });
@@ -222,8 +228,11 @@ Only segment the specific object or region requested. The mask should be a binar
 
       return JSON.parse(responseText);
     } catch (error) {
-      console.error('Error segmenting image:', error);
-      throw new Error('Не удалось сегментировать изображение. Пожалуйста, попробуйте снова.');
+      console.error('[GeminiService] Error segmenting image:', error);
+      if (error instanceof TypeError && error.message === 'Failed to fetch') {
+        throw new Error('Ошибка сети или доступа к API (ERR_CONNECTION_CLOSED). Проверьте интернет-соединение или настройки прокси/VPN.');
+      }
+      throw new Error(error instanceof Error ? error.message : 'Не удалось сегментировать изображение. Пожалуйста, попробуйте снова.');
     }
   }
 
