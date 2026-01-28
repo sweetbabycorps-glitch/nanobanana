@@ -4,10 +4,11 @@ import { Textarea } from './ui/Textarea';
 import { Button } from './ui/Button';
 import { useAppStore } from '../store/useAppStore';
 import { useImageGeneration, useImageEditing } from '../hooks/useImageGeneration';
-import { Upload, Wand2, Edit3, MousePointer, HelpCircle, ChevronDown, ChevronRight, RotateCcw } from 'lucide-react';
+import { Upload, Wand2, Edit3, MousePointer, HelpCircle, ChevronDown, ChevronRight, RotateCcw, Sparkles } from 'lucide-react';
 import { blobToBase64 } from '../utils/imageUtils';
 import { PromptHints } from './PromptHints';
 import { cn } from '../utils/cn';
+import { geminiService } from '../services/geminiService';
 
 export const PromptComposer: React.FC = () => {
   const {
@@ -20,6 +21,7 @@ export const PromptComposer: React.FC = () => {
     seed,
     setSeed,
     isGenerating,
+    setIsGenerating,
     uploadedImages,
     addUploadedImage,
     removeUploadedImage,
@@ -44,7 +46,22 @@ export const PromptComposer: React.FC = () => {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showHintsModal, setShowHintsModal] = useState(false);
+  const [isOptimizing, setIsOptimizing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleOptimizePrompt = async () => {
+    if (!currentPrompt.trim() || isOptimizing) return;
+    
+    setIsOptimizing(true);
+    try {
+      const optimized = await geminiService.optimizePrompt(currentPrompt);
+      setCurrentPrompt(optimized);
+    } catch (error) {
+      console.error('Failed to optimize prompt:', error);
+    } finally {
+      setIsOptimizing(false);
+    }
+  };
 
   const handleGenerate = () => {
     if (!currentPrompt.trim()) return;
@@ -261,27 +278,44 @@ export const PromptComposer: React.FC = () => {
               ? 'Безмятежный горный пейзаж на закате с озером, отражающим золотое небо...'
               : 'Сделай небо более драматичным, добавь грозовые тучи...'
           }
-          className="min-h-[120px] resize-none"
+          className="min-h-[200px] resize-none"
         />
         
-        {/* Prompt Quality Indicator */}
-        <button 
-          onClick={() => setShowHintsModal(true)}
-          className="mt-2 flex items-center text-xs hover:text-gray-400 transition-colors group"
-        >
-          {currentPrompt.length < 20 ? (
-            <HelpCircle className="h-3 w-3 mr-2 text-red-500 group-hover:text-red-400" />
-          ) : (
-            <div className={cn(
-              'h-2 w-2 rounded-full mr-2',
-              currentPrompt.length < 50 ? 'bg-yellow-500' : 'bg-green-500'
-            )} />
-          )}
-          <span className="text-gray-500 group-hover:text-gray-400 whitespace-nowrap text-left">
-            {currentPrompt.length < 20 ? 'Добавьте деталей для лучшего результата' :
-             currentPrompt.length < 50 ? 'Хороший уровень детализации' : 'Отличная детализация промпта'}
-          </span>
-        </button>
+        <div className="flex items-center justify-between mt-2">
+          {/* Prompt Quality Indicator */}
+          <button 
+            onClick={() => setShowHintsModal(true)}
+            className="flex items-center text-xs hover:text-gray-400 transition-colors group"
+          >
+            {currentPrompt.length < 20 ? (
+              <HelpCircle className="h-3 w-3 mr-2 text-red-500 group-hover:text-red-400" />
+            ) : (
+              <div className={cn(
+                'h-2 w-2 rounded-full mr-2',
+                currentPrompt.length < 50 ? 'bg-yellow-500' : 'bg-green-500'
+              )} />
+            )}
+            <span className="text-gray-500 group-hover:text-gray-400 whitespace-nowrap text-left">
+              {currentPrompt.length < 20 ? 'Добавьте деталей' :
+               currentPrompt.length < 50 ? 'Хорошо' : 'Отлично'}
+            </span>
+          </button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleOptimizePrompt}
+            disabled={isOptimizing || !currentPrompt.trim()}
+            className="h-7 px-2 text-[10px] text-yellow-400 hover:text-yellow-300 hover:bg-yellow-400/10"
+          >
+            {isOptimizing ? (
+              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-yellow-400 mr-1" />
+            ) : (
+              <Sparkles className="h-3 w-3 mr-1" />
+            )}
+            Улучшить ИИ
+          </Button>
+        </div>
       </div>
 
 

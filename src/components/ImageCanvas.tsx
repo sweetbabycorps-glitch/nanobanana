@@ -247,13 +247,13 @@ export const ImageCanvas: React.FC = () => {
         className="flex-1 relative overflow-hidden bg-gray-800"
       >
         {!image && !isGenerating && (
-          <div className="absolute inset-0 flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center justify-center z-50">
             <div className="text-center">
-              <div className="text-6xl mb-4">🍌</div>
+              <div className="text-6xl mb-4 mx-auto">🍌</div>
               <h2 className="text-xl font-medium text-gray-300 mb-2">
                 Добро пожаловать в Nano Banana
               </h2>
-              <p className="text-gray-500 max-w-md">
+              <p className="text-gray-500 max-w-md mx-auto">
                 {selectedTool === 'generate'
                   ? 'Начните с описания того, что вы хотите создать, в поле для промпта'
                   : 'Загрузите изображение, чтобы начать редактирование'
@@ -264,9 +264,9 @@ export const ImageCanvas: React.FC = () => {
         )}
 
         {isGenerating && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-900/50">
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-900/50 z-50">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400 mb-4" />
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400 mb-4 mx-auto" />
               <p className="text-gray-300">Создание изображения...</p>
             </div>
           </div>

@@ -2,7 +2,9 @@ import { GenerationOptions } from '../types';
 
 // @ts-ignore - Vite env variables
 const API_KEY = (import.meta as any).env.VITE_GEMINI_API_KEY || 'demo-key';
+const OPENROUTER_API_KEY = (import.meta as any).env.VITE_OPENROUTER_API_KEY || '';
 const API_URL = 'https://api.laozhang.ai/v1beta/models/gemini-3-pro-image-preview:generateContent';
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 // Debug logging for API key
 if (API_KEY === 'demo-key') {
@@ -246,6 +248,62 @@ Only segment the specific object or region requested. The mask should be a binar
 Maintain the original image's lighting, perspective, and overall composition. Make the changes look natural and seamlessly integrated.${maskInstruction}
 
 Preserve image quality and ensure the edit looks professional and realistic.`;
+  }
+
+  async optimizePrompt(prompt: string): Promise<string> {
+    if (!OPENROUTER_API_KEY) {
+      console.warn('[GeminiService] OPENROUTER_API_KEY is not set.');
+      return prompt;
+    }
+
+    try {
+      const response = await fetch(OPENROUTER_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+          'HTTP-Referer': window.location.origin,
+          'X-Title': 'Nano Banana Editor',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-3-flash-preview',
+          messages: [
+            {
+              role: 'system',
+              content: `Role: You are a Senior Art Director and Prompt Engineer specializing in E-commerce and Marketplace imagery. Your goal is to take a simple user concept and transform it into a high-end, commercial-grade image prompt.
+
+Output: A detailed, high-quality prompt in English optimized for AI image generation (Stable Diffusion/Midjourney/Flux).
+
+Instructions:
+1.  **Analyze the Input:** Identify the core subject. Determine if it's a Product Shot, a Background/Texture, or a Lifestyle image.
+2.  **Translate & Expand:** Translate the core concept to English.
+3.  **Enhance Visuals:** Add specific descriptors based on the category:
+    * *For Products:* Focus on "studio lighting," "product photography," "4k," "sharp focus," "clean background," "advertising photography."
+    * *For Backgrounds (podiums, abstract):* Focus on "depth of field," "soft lighting," "minimalist," "3d render," "octane render," "unreal engine 5," "high texture quality."
+    * *For Lifestyle:* Focus on "cinematic lighting," "dynamic angle," "highly detailed," "masterpiece."
+4.  **Composition:** Ensure the composition allows space for text overlays (crucial for marketplaces). Add keywords like "clean composition," "centered," or "rule of thirds."
+5.  **Technical Specs:** Always include quality boosters: "best quality," "ultra-detailed," "8k," "HDR," "professional color grading."
+
+**Constraint:** Do NOT write conversational filler. Output ONLY the final improved prompt string.`
+            },
+            {
+              role: 'user',
+              content: `User Input: ${prompt}`
+            }
+          ]
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`OpenRouter error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.choices?.[0]?.message?.content || prompt;
+    } catch (error) {
+      console.error('[GeminiService] Error optimizing prompt:', error);
+      return prompt;
+    }
   }
 }
 

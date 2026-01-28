@@ -14,7 +14,7 @@ export const Header: React.FC = () => {
           </h1>
         </div>
         <div className="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded">
-          1.0
+          2.0
         </div>
       </div>
 
